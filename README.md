@@ -42,29 +42,29 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - Create an Enterprise App registration in Entra ID
 - After creating the App registration -> browse to API permissions -> Click Add Permission -> Click the Microsoft Graph -> Application permissions.
 
-Select each of the following permissions:
-
-To access Intune data:
-- DeviceManagementApps.ReadWrite.All
-- DeviceManagementConfiguration.ReadWrite.All
-- DeviceManagementServiceConfig.ReadWrite.All
-- DeviceManagementManagedDevices.ReadWrite.All
-- DeviceManagementRBAC.ReadWrite.All
-- Group.Read.All
-- Policy.Read.All
-- Policy.ReadWrite.ConditionalAccess
-- Application.Read.All
-
-To access Entra data:
-- Domain.ReadWrite.All
-- Policy.ReadAll
-- Policy.ReadWrite.AuthenticationFlows
-- Policy.ReadWrite.AuthenticationMethod
-- Policy.ReadWrite.Authorization
-- Policy.ReadWrite.DeviceConfiguration
-- Policy.ReadWrite.ExternalIdentities
-- Policy.ReadWrite.SecurityDefaults
-- Group.ReadWrite.All
+  Select each of the following permissions:
+  
+  To access Intune data:
+  - DeviceManagementApps.ReadWrite.All
+  - DeviceManagementConfiguration.ReadWrite.All
+  - DeviceManagementServiceConfig.ReadWrite.All
+  - DeviceManagementManagedDevices.ReadWrite.All
+  - DeviceManagementRBAC.ReadWrite.All
+  - Group.Read.All
+  - Policy.Read.All
+  - Policy.ReadWrite.ConditionalAccess
+  - Application.Read.All
+  
+  To access Entra data:
+  - Domain.ReadWrite.All
+  - Policy.ReadAll
+  - Policy.ReadWrite.AuthenticationFlows
+  - Policy.ReadWrite.AuthenticationMethod
+  - Policy.ReadWrite.Authorization
+  - Policy.ReadWrite.DeviceConfiguration
+  - Policy.ReadWrite.ExternalIdentities
+  - Policy.ReadWrite.SecurityDefaults
+  - Group.ReadWrite.All
 
 After adding the permissions, don't forget to provide Admin consent for them.
 
@@ -98,7 +98,7 @@ Run the `intune-backup.yml` pipeline in Azure DevOps to back up configurations t
 The `intune-backup.yml` pipeline automatically generates markdown documentation from the backup. It creates documentation files in the `prod-documentation` folder.
 
 ### Restoring Configurations
-Follow these steps carefully to ensure a smooth restoration process:
+Follow these steps carefully to ensure a smooth restore process:
 
 1. **Create a New Branch**
 - Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
