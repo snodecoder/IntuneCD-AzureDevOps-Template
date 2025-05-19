@@ -25,7 +25,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - **`prod-backup\`**: Stores the Intune configuration backup.
 - **`prod-documentation\`**: Contains generated markdown documentation.
 - **`prod-restore\`**: Used for restoring configurations.
-- **`pipelines\intune-backup.yml`**: Creates backup of Intune configurations in `prod-restore\`, generates markdown documentation in `prod-documentation\` converted for use with Azure DevOps code Wiki, stores changes made in Intune by admins since last backup in separate commits based upon Intune audit logs.
+- **`pipelines\intune-backup.yml`**: Creates backup of Intune configurations in `prod-backup\`, generates markdown documentation in `prod-documentation\` converted for use with Azure DevOps code Wiki, stores changes made in Intune by admins since last backup in separate commits based upon Intune audit logs.
 - **`pipelines\intune-restore.yml`**: Restores configurations from the `prod-restore` folder, removes restored files after successful execution. This pipeline contains a parameter to Update Assignments for the restored files (default = `false`).
 - **`Install-Python.ps1`**: Installs Python on Windows Self Hosted Azure DevOps Agent.
 
