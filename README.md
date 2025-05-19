@@ -2,7 +2,7 @@
 
 This project is based on https://github.com/almenscorner/IntuneCD (which automates the process of backing up, documenting, and restoring Microsoft Intune configurations. It also documents the changes made by admins since last backup in separate commits based on the Intune Audit logs) and based on the pipeline configuration of https://github.com/aaronparker/intune-backup-template.
 
-#### TLDR
+### TLDR
 The purpose of this project is to provide a ready-to-use implementation for Azure DevOps with Self Hosted Windows Agents.
 - It contains the pipelines and instructions for configuring the required dependencies for using IntuneCD on Self Hosted Windows Azure DevOps Agents.
 - It contains a conversion of the generated documentation to make it compatible for use in an Azure DevOps code Wiki.
@@ -32,7 +32,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ## Setup Dependencies and Environment
 0. **Requirements:**
 - Windows OS (Server or Client)
-- Installed and configured Self Hosted Azure DevOps Agent. (Instructions not included here.)
+- Installed and configured Self Hosted Azure DevOps Agent. *(Instructions not included here, see [Microsoft Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/windows-agent?view=azure-devops&tabs=IP-V4))*
 
 1. **Install Dependencies**:
 - Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
