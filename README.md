@@ -35,61 +35,61 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - Installed and configured Self Hosted Azure DevOps Agent. (Instructions not included here.)
 
 1. **Install Dependencies**:
-   - Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
-   - Make sure that you install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
+- Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
+- Make sure that you install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
 
 2. **Entra ID App Registration permissions**
-   - Create an Enterprise App registration in Entra ID
-   - After creating the App registration -> browse to API permissions -> Click Add Permission -> Click the Microsoft Graph -> Application permissions.
+- Create an Enterprise App registration in Entra ID
+- After creating the App registration -> browse to API permissions -> Click Add Permission -> Click the Microsoft Graph -> Application permissions.
 
-   Select each of the following permissions:
+Select each of the following permissions:
 
-   To access Intune data:
-   - DeviceManagementApps.ReadWrite.All
-   - DeviceManagementConfiguration.ReadWrite.All
-   - DeviceManagementServiceConfig.ReadWrite.All
-   - DeviceManagementManagedDevices.ReadWrite.All
-   - DeviceManagementRBAC.ReadWrite.All
-   - Group.Read.All
-   - Policy.Read.All
-   - Policy.ReadWrite.ConditionalAccess
-   - Application.Read.All
+To access Intune data:
+- DeviceManagementApps.ReadWrite.All
+- DeviceManagementConfiguration.ReadWrite.All
+- DeviceManagementServiceConfig.ReadWrite.All
+- DeviceManagementManagedDevices.ReadWrite.All
+- DeviceManagementRBAC.ReadWrite.All
+- Group.Read.All
+- Policy.Read.All
+- Policy.ReadWrite.ConditionalAccess
+- Application.Read.All
 
-   To access Entra data:
-   - Domain.ReadWrite.All
-   - Policy.ReadAll
-   - Policy.ReadWrite.AuthenticationFlows
-   - Policy.ReadWrite.AuthenticationMethod
-   - Policy.ReadWrite.Authorization
-   - Policy.ReadWrite.DeviceConfiguration
-   - Policy.ReadWrite.ExternalIdentities
-   - Policy.ReadWrite.SecurityDefaults
-   - Group.ReadWrite.All
+To access Entra data:
+- Domain.ReadWrite.All
+- Policy.ReadAll
+- Policy.ReadWrite.AuthenticationFlows
+- Policy.ReadWrite.AuthenticationMethod
+- Policy.ReadWrite.Authorization
+- Policy.ReadWrite.DeviceConfiguration
+- Policy.ReadWrite.ExternalIdentities
+- Policy.ReadWrite.SecurityDefaults
+- Group.ReadWrite.All
 
 After adding the permissions, don't forget to provide Admin consent for them.
 
    ***Make sure to perform all necessary security reviews within your organizations before deploying in production environments***
 
 3. **Configure Environment**:
-   - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
-   - Update `.vscode\settings.json` as needed.
-   - Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
-      - $env:USER_NAME = "IntuneCD"
-      - $env:USER_EMAIL = "IntuneCD@`[yourdomain.com]`"
-      - $env:TENANT_NAME = "`[tenant.yourdomain.com]`"
-      - $env:TENANT_ID = "`[TenantID]`"
-      - $env:CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
-      - $env:IntuneCDVersion = "==2.4.1b5" (Which IntuneCD version to use)
-   - Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created).
-   - Commit changes.
+- Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
+- Update `.vscode\settings.json` as needed.
+- Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
+   - USER_NAME = "IntuneCD"
+   - USER_EMAIL = "IntuneCD@`[yourdomain.com]`"
+   - TENANT_NAME = "`[tenant.yourdomain.com]`"
+   - TENANT_ID = "`[TenantID]`"
+   - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
+   - IntuneCDVersion = "==2.4.1b5" (Which IntuneCD version to use)
+- Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created).
+- Commit changes.
 4. **Set Up Pipelines**:
-   - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
+- Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
 5. **Publish Code Wiki**
-   - In Azure DevOps go to Overview > Wiki.
-   - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
-   - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
-   - Select the Repository you've created, and select the folder `prod-documentation` and click save.
-   - After running the `intune-backup.yml' from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
+- In Azure DevOps go to Overview > Wiki.
+- If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
+- Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
+- Select the Repository you've created, and select the folder `prod-documentation` and click save.
+- After running the `intune-backup.yml' from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
 
 ## Usage
 
@@ -101,33 +101,33 @@ The `intune-backup.yml` pipeline automatically generates markdown documentation 
 Follow these steps carefully to ensure a smooth restoration process:
 
 1. **Create a New Branch**
-    - Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
+- Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
 
 2. **Locate the File to Restore**
-    - Use the **Timeline** feature in VSCode to find the historic version of the file in `prod-backup` that contains the settings you want to restore.
+- Use the **Timeline** feature in VSCode to find the historic version of the file in `prod-backup` that contains the settings you want to restore.
 
 3. **Place the File in `prod-restore`**
-    - Copy the file to the corresponding `prod-restore` subfolder. Ensure it is placed in the same location as it was saved in `prod-backup`.
+- Copy the file to the corresponding `prod-restore` subfolder. Ensure it is placed in the same location as it was saved in `prod-backup`.
 
 4. **Verify File Placement**
-    - Double-check that the file in `prod-restore` is in the exact same location as it was in `prod-backup`.
-    - For some items (e.g., proactive remediations), you may need to restore multiple files (e.g., a file in `script data` and another in the directory above).
+- Double-check that the file in `prod-restore` is in the exact same location as it was in `prod-backup`.
+- For some items (e.g., proactive remediations), you may need to restore multiple files (e.g., a file in `script data` and another in the directory above).
 
 5. **Verify File Contents**
-    - Confirm that the file in `prod-restore` contains the changes you want restored.
+- Confirm that the file in `prod-restore` contains the changes you want restored.
 
 6. **Commit and Sync Changes**
-    - Commit your changes to the branch you created.
-    - Sync your branch and open a pull request to merge it with `main`.
-    - In the pull request description, explain what you are restoring and why.
-    - In the pull request description, specify if you would like to restore assignments as well (default = `false`).
+- Commit your changes to the branch you created.
+- Sync your branch and open a pull request to merge it with `main`.
+- In the pull request description, explain what you are restoring and why.
+- In the pull request description, specify if you would like to restore assignments as well (default = `false`).
 
 7. **Review and Approval**
-    - During review make sure that all the files located in `prod-restore` contain the settings and assignments that you would like to restore (assignments are only restored when you enable the UpdateAssignments parameter when running the `intune-restore.yml` pipeline).
+- During review make sure that all the files located in `prod-restore` contain the settings and assignments that you would like to restore (assignments are only restored when you enable the UpdateAssignments parameter when running the `intune-restore.yml` pipeline).
 
 8. **Run Restore Pipeline**
-   - Run the `intune-restore.yml` pipeline manually and specify if you would like to update assignments during restore by selecting the UpdateAssignments parameter in the pipeline.
-   - The pipeline will restore the files you've placed in `prod-restore` and afterwards remove them from the `prod-restore` folder and the repository.
+- Run the `intune-restore.yml` pipeline manually and specify if you would like to update assignments during restore by selecting the UpdateAssignments parameter in the pipeline.
+- The pipeline will restore the files you've placed in `prod-restore` and afterwards remove them from the `prod-restore` folder and the repository.
 
 ## Contributing
 
