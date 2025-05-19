@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-vscode.powershell",
+        "kee-shepherd.kee-shepherd-vscode",
+        "ms-azure-devops.azure-pipelines",
+        "shd101wyy.markdown-preview-enhanced",
+        "ms-azuretools.vscode-azureresourcegroups"
+    ]
+}

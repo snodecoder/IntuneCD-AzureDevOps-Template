@@ -1,0 +1,143 @@
+trigger: none
+
+parameters:
+  - name: UpdateAssignments
+    type: boolean
+    default: false
+
+variables:
+  - group: ##INSERT_YOUR_VARIABLE_GROUP_NAME##
+
+jobs:
+  - job: check_for_files_to_restore
+    displayName: Check for files to restore
+    pool:
+      name: 'lab'
+    steps:
+    - checkout: self
+      persistCredentials: true
+
+    - task: PowerShell@2
+      displayName: Get Changes
+      name: get_changes
+      inputs:
+        targetType: 'inline'
+        script: |
+            # Detect new files only in the target folder
+            $targetFolder = "$(Build.SourcesDirectory)\prod-restore"
+
+            # Get newly added files in PR
+            $newFiles = get-childitem -Path $targetFolder -Recurse -File -Exclude "*.md"
+
+
+            if ($newFiles.Count -eq 0) {
+              Write-Host "##vso[task.setvariable variable=filesToRestore;isOutput=true]false"
+              Write-Host "No new files found in $targetFolder. Exiting."
+            } else {
+              Write-Host "##vso[task.setvariable variable=filesToRestore;isOutput=true]true"
+              Write-Host "Files to restore: $($newFiles.Count)"
+            }
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+
+  - job: restore_backup
+    displayName: Restore configuration
+    dependsOn: check_for_files_to_restore
+    condition: and(succeeded(), eq(dependencies.check_for_files_to_restore.outputs['get_changes.filesToRestore'], 'true'))
+    pool:
+      name: 'lab'
+    continueOnError: false
+    steps:
+    - checkout: self
+      persistCredentials: true
+
+    # Set git global settings
+    - task: PowerShell@2
+      displayName: Configure Git
+      inputs:
+        targetType: 'inline'
+        script: |
+          git config --global user.name $(USER_NAME)
+          git config --global user.email $(USER_EMAIL)
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.x'
+        architecture: 'x64'
+        addToPath: true
+        disableDownloadFromRegistry: true
+
+    # Install IntuneCD
+    - task: PowerShell@2
+      displayName: Install IntuneCD
+      inputs:
+        targetType: 'inline'
+        script: |
+          python -m venv "$(Build.SourcesDirectory)\.venv"
+          & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
+          python -m ensurepip --default-pip
+          python -m pip install --upgrade pip
+          python -m pip uninstall -y intunecd
+          python -m pip install intunecd$(IntuneCDVersion)
+          deactivate
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+
+    # Restore the latest configuration, using the current directory
+    - task: PowerShell@2
+      displayName: IntuneCD Restore
+      inputs:
+        targetType: 'inline'
+        script: |
+          & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
+          $updateAssignmentsParam = if ($env:UpdateAssignments) { '--update-assignments' } else { '' }
+
+          IntuneCD-startupdate `
+            --mode=1 `
+            --path="$(Build.SourcesDirectory)\prod-restore" `
+            --exclude entraAuthenticationFlowsPolicy entraAuthenticationMethods entraAuthorizationPolicy entraB2BPolicy entraDeviceRegistrationPolicy entraExternalIdentitiesPolicy entraGroupSettings entraRoamingSettings entraSecurityDefaults entraSSPR entraAuthenticationMethodsConfigurations entraDomains $updateAssignmentsParam
+          deactivate
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+      env:
+        TENANT_NAME: $(TENANT_NAME)
+        CLIENT_ID: $(CLIENT_ID)
+        CLIENT_SECRET: $(CLIENT_SECRET)
+        UpdateAssignments: $(UpdateAssignments)
+
+    # Commit changes and push to repo
+    - task: PowerShell@2
+      displayName: Clean restored files
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Detect new files only in the target folder
+          $targetFolder = "$(Build.SourcesDirectory)\prod-restore"
+
+          # Get newly added files in PR
+          $newFiles = get-childitem -Path $targetFolder -Recurse -File -Exclude "*.md"
+
+          foreach ($file in $newFiles) {
+            Remove-Item -Path "$($file)" -Force
+          }
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true
+
+    # Commit changes and push to repo
+    - task: PowerShell@2
+      displayName: Commit changes
+      inputs:
+        targetType: 'inline'
+        script: |
+          $DATEF = Get-Date -Format "yyyy.MM.dd"
+          git add --all
+          git commit -m "Intune cleared restored files from repo $DATEF"
+          git push origin HEAD:main
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true

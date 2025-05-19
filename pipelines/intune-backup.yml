@@ -1,0 +1,291 @@
+trigger: none
+
+schedules:
+  - cron: '0 2 * * *'
+    displayName: "Runs daily at 01:00 CET / 02:00 CEST"
+    branches:
+      include:
+      - main
+    always: true
+
+variables:
+  - group: ##INSERT_YOUR_VARIABLE_GROUP_NAME##
+
+jobs:
+  - job: backup_document
+    displayName: Backup configuration and generate markdown
+    pool:
+      name: 'lab'
+    continueOnError: false
+    steps:
+    - checkout: self
+      persistCredentials: true
+
+    # Set git global settings
+    - task: PowerShell@2
+      displayName: Configure Git
+      inputs:
+        targetType: 'inline'
+        script: |
+          git config --global user.name $(USER_NAME)
+          git config --global user.email $(USER_EMAIL)
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+
+    # Set up Python environment
+    - task: UsePythonVersion@0
+      displayName: Set up Python environment
+      inputs:
+        versionSpec: '3.x'
+        architecture: 'x64'
+        addToPath: true
+        disableDownloadFromRegistry: true
+
+    # Install IntuneCD
+    - task: PowerShell@2
+      displayName: Install IntuneCD
+      inputs:
+        targetType: 'inline'
+        script: |
+          python -m venv "$(Build.SourcesDirectory)\.venv"
+          & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
+          python -m ensurepip --default-pip
+          python -m pip install --upgrade pip
+          python -m pip uninstall -y intunecd
+          python -m pip install intunecd$(IntuneCDVersion)
+          deactivate
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+
+    # Backup the latest configuration, using the current directory
+    - task: PowerShell@2
+      displayName: IntuneCD backup
+      inputs:
+        targetType: 'inline'
+        script: |
+          & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
+
+          if (-not (Test-Path "$(Build.SourcesDirectory)\prod-backup")) {
+              $null = New-Item -Path "$(Build.SourcesDirectory)\prod-backup" -ItemType Directory -Force
+          }
+          IntuneCD-startbackup `
+              --mode=1 `
+              --output=json `
+              --path="$(Build.SourcesDirectory)\prod-backup" `
+              --audit `
+              --append-id `
+              --exclude entraApplications entraAuthenticationFlowsPolicy entraAuthenticationMethods entraAuthorizationPolicy entraB2BPolicy entraDeviceRegistrationPolicy entraExternalIdentitiesPolicy entraGroupSettings entraRoamingSettings entraSecurityDefaults entraSSPR entraUserSettings entraDomains
+          deactivate
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+      env:
+        TENANT_NAME: $(TENANT_NAME)
+        CLIENT_ID: $(CLIENT_ID)
+        CLIENT_SECRET: $(CLIENT_SECRET)
+
+    # Commit changes and push to repo
+    - task: PowerShell@2
+      displayName: Commit changes
+      name: commitAndsetVariable
+      inputs:
+        targetType: 'inline'
+        script: |
+          git pull origin main
+          $DATEF = Get-Date -Format "yyyy.MM.dd"
+          git add --all
+          # modified files in folder prod-backup
+          $var = git diff --name-only --staged "$(Build.SourcesDirectory)\prod-backup"
+          Write-Host "##vso[task.setVariable variable=CHANGE_DETECTED;isOutput=true;]$var"
+          git commit -m "Intune config backup $DATEF"
+          git push origin HEAD:main
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true
+
+    # Create markdown documentation
+    - task: PowerShell@2
+      displayName: Generate markdown document
+      inputs:
+        targetType: 'inline'
+        script: |
+          & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
+
+          if ($env:CHANGE_DETECTED -ne "") {
+            $INTRO = "Intune backup and documentation generated at $(Build.Repository.Uri) <img align=`"right`" width=`"96`" height=`"96`" src=`"./logo.png`">"
+            IntuneCD-startdocumentation `
+              --path="$(Build.SourcesDirectory)\prod-backup" `
+              --outpath="$(Build.SourcesDirectory)\prod-backup.md" `
+              --tenantname=$env:TENANT_NAME `
+              --intro="$INTRO" `
+              --split-per-config `
+              --decode
+          }
+          else {
+            Write-Host "No configuration backup change detected in the last commit, documentation will not be recreated."
+          }
+          deactivate
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+      env:
+        TENANT_NAME: $(TENANT_NAME)
+
+    - task: PowerShell@2
+      displayName: Copy markdown documents
+      inputs:
+        targetType: 'inline'
+        script: |
+          # Define source and destination paths
+          $sourcePath = "$(Build.SourcesDirectory)\prod-backup"
+          $destinationPath = "$(Build.SourcesDirectory)\prod-documentation"
+
+          # Check if the destination path exists, if not create it
+          if (-not (Test-Path $destinationPath)) {
+              New-Item -Path $destinationPath -ItemType Directory -Force | Out-Null
+          }
+
+          # Initialize a mapping hashtable to store folder mappings
+          $folderMapping = @{}
+
+          # Get all folders recursively from the source path
+          Get-ChildItem -Path $sourcePath -Directory -Recurse | Where-Object {
+              $_.FullName -notlike "*\__archive__*"
+          } | ForEach-Object {
+              $relativePath = $_.FullName.Substring($sourcePath.Length).TrimStart("\")
+              $newFolderPath = ($relativePath -replace " ", "_") # Replace spaces in the folder names with underscores
+              $destinationFolderPath = Join-Path $destinationPath $newFolderPath
+
+              # Handle special case for "docs" folders
+              if ($_.Name -eq "docs") {
+                  # Map the "docs" folder to one level higher in the destination
+                  $parentFolder = Split-Path $destinationFolderPath -Parent
+                  $folderMapping[$_.FullName] = $parentFolder
+              } else {
+                  # Map the folder normally
+                  $folderMapping[$_.FullName] = $destinationFolderPath
+
+                  # Create the corresponding folder structure in the destination path
+                  New-Item -Path $destinationFolderPath -ItemType Directory -Force | Out-Null
+              }
+          }
+
+          # Retrieve all .md files from docs folders under prod-backup
+          Get-ChildItem -Path $sourcePath -Recurse -Filter "*.md" | Where-Object {
+              $_.FullName -like "*\docs\*"
+          } | ForEach-Object {
+              # Get the source file path
+              $sourceFilePath = $_.FullName
+
+              # Find the corresponding destination folder using $folderMapping
+              $docsFolderPath = Split-Path -Parent -Path $sourceFilePath
+
+              if ($folderMapping.ContainsKey($docsFolderPath)) {
+                  $destinationFolderPath = $folderMapping[$docsFolderPath]
+
+                  # Replace spaces in the file name with underscores
+                  $newFileName = ($_.Name -replace " ", "_")
+                  $destinationFilePath = Join-Path $destinationFolderPath $newFileName
+
+                  Copy-Item -LiteralPath "$sourceFilePath" -Destination $destinationFilePath -Force
+                  Write-Verbose "Copied: $sourceFilePath -> $destinationFolderPath"
+              } else {
+                  Write-Warning "No mapping found for: $docsFolderPath"
+              }
+          }
+          Write-Host "Finished copying .md files from docs folders to prod-documentation."
+
+          # Get all folders under prod-documentation that contain .md files
+          Get-ChildItem -Path $destinationPath -Directory -Recurse | ForEach-Object {
+
+              $mdFiles = Get-ChildItem -Path $_.FullName -Filter "*.md" -File
+              if ($mdFiles) {
+
+                  $folderName = $_.Name
+                  $parentPath = Split-Path -Parent $_.FullName
+                  $newMdFilePath = Join-Path $parentPath "$folderName.md"
+
+                  # Write [[TOSP]] as content to the new .md file
+                  Set-Content -Path $newMdFilePath -Value "[[_TOSP_]]"
+                  Write-Host "Created: $newMdFilePath with content [[_TOSP_]]"
+              }
+          }
+
+          # Remove all .md files from prod-backup
+          Get-ChildItem -Path $sourcePath -Recurse -Filter "*.md" -File | ForEach-Object {
+              Remove-Item -LiteralPath $_.FullName -Force
+              Write-Verbose "Removed file: $($_.FullName)"
+          }
+
+          # Remove all docs folders from prod-backup
+          Get-ChildItem -Path $sourcePath -Recurse -Directory | Where-Object {
+              $_.Name -eq "docs"
+          } | ForEach-Object {
+              Remove-Item -LiteralPath $_.FullName -Recurse -Force
+              Write-Verbose "Removed folder: $($_.FullName)"
+          }
+          Write-Host "Finished removing docs folders and .md files from prod-backup."
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+
+    # Commit changes and push to repo
+    - task: PowerShell@2
+      displayName: Commit changes
+      inputs:
+        targetType: 'inline'
+        script: |
+          $DATEF = Get-Date -Format "yyyy.MM.dd"
+          git add --all
+          git commit -m "Intune config as-built $DATEF"
+          git push origin HEAD:main
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true
+
+  - job: tag
+    displayName: Tag repo
+    dependsOn: backup_document
+    condition: and(succeeded(), ne(dependencies.backup_document.outputs['commitAndsetVariable.CHANGE_DETECTED'], ''))
+    pool:
+      name: 'lab'
+    continueOnError: false
+    steps:
+    - checkout: self
+      persistCredentials: true
+
+    # Set git global settings
+    - task: PowerShell@2
+      displayName: Configure Git
+      inputs:
+        targetType: 'inline'
+        script: |
+          git config --global user.name $(USER_NAME)
+          git config --global user.email $(USER_EMAIL)
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'stop'
+        pwsh: true
+
+    - task: PowerShell@2
+      displayName: Pull origin
+      inputs:
+        targetType: 'inline'
+        script: |
+          git pull origin main
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true
+
+    # Commit changes and push to repo
+    - task: PowerShell@2
+      displayName: Git tag
+      inputs:
+        targetType: 'inline'
+        script: |
+          # change in configuration backup folder detected, create TAG
+          $DATEF = Get-Date -Format "yyyy.MM.dd"
+          git tag -a "v$DATEF" -m "Microsoft Intune configuration snapshot $DATEF"
+          git push origin "v$DATEF"
+        workingDirectory: '$(Build.SourcesDirectory)'
+        errorActionPreference: 'continue'
+        pwsh: true
