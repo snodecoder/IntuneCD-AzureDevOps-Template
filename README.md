@@ -10,7 +10,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ## Table of Contents
 
 - [Overview](#overview)
-- [Setup](#setup)
+- [Setup Dependencies and Environment](#setup-dependencies-and-environment)
 - [Usage](#usage)
   - [Backing Up Intune Configurations](#backing-up-intune-configurations)
   - [Restoring Configurations](#restoring-configurations)
@@ -20,7 +20,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ---
 
 ## Overview
-#### Key Files and Folders
+### Key Files and Folders
 
 - **`prod-backup\`**: Stores the Intune configuration backup.
 - **`prod-documentation\`**: Contains generated markdown documentation.
@@ -29,7 +29,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - **`pipelines\intune-restore.yml`**: Restores configurations from the `prod-restore` folder, removes restored files after successful execution. This pipeline contains a parameter to Update Assignments for the restored files (default = `false`).
 - **`Install-Python.ps1`**: Installs Python on Windows Self Hosted Azure DevOps Agent.
 
-## Setup
+## Setup Dependencies and Environment
 0. **Requirements:**
 - Windows OS (Server or Client)
 - Installed and configured Self Hosted Azure DevOps Agent. (Instructions not included here.)
@@ -84,14 +84,20 @@ After adding the permissions, don't forget to provide Admin consent for them.
    - Commit changes.
 4. **Set Up Pipelines**:
    - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
+5. **Publish Code Wiki**
+   - In Azure DevOps go to Overview > Wiki.
+   - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
+   - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
+   - Select the Repository you've created, and select the folder `prod-documentation` and click save.
+   - After running the `intune-backup.yml' from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
 
 ## Usage
 
-#### Backing Up Intune Configurations
+### Backing Up Intune Configurations
 Run the `intune-backup.yml` pipeline in Azure DevOps to back up configurations to the `prod-backup` folder.
 The `intune-backup.yml` pipeline automatically generates markdown documentation from the backup. It creates documentation files in the `prod-documentation` folder.
 
-#### Restoring Configurations
+### Restoring Configurations
 Follow these steps carefully to ensure a smooth restoration process:
 
 1. **Create a New Branch**
