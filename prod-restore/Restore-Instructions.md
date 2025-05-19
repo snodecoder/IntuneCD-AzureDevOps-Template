@@ -1,12 +1,11 @@
 # Restore Instructions
-
-Follow these steps to restore a file:
+Follow these steps carefully to ensure a smooth restoration process:
 
 1. **Create a New Branch**
     - Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
 
 2. **Locate the File to Restore**
-    - Use the **Timeline** feature in VSCode to find the historic version of the file that contains the settings you want to restore.
+    - Use the **Timeline** feature in VSCode to find the historic version of the file in `prod-backup` that contains the settings you want to restore.
 
 3. **Place the File in `prod-restore`**
     - Copy the file to the corresponding `prod-restore` subfolder. Ensure it is placed in the same location as it was saved in `prod-backup`.
@@ -22,9 +21,11 @@ Follow these steps to restore a file:
     - Commit your changes to the branch you created.
     - Sync your branch and open a pull request to merge it with `main`.
     - In the pull request description, explain what you are restoring and why.
+    - In the pull request description, specify if you would like to restore assignments as well (default = false).
 
 7. **Review and Approval**
-    - Once your pull request is reviewed and approved, run the `intune-restore` pipeline manually and specify if you would like to update assignments during restore by selecting the UpdateAssignments parameter in the pipeline.
-    - The pipeline will restore the file and remove it from `prod-restore`.
+    - During review make sure that all the files located in `prod-restore` contain the settings and assignments that you would like to restore (assignments are only restored when you enable the UpdateAssignments parameter when running the `intune-restore.yml` pipeline).
 
-Follow these steps carefully to ensure a smooth restoration process.
+8. **Run Restore Pipeline**
+   - Run the `intune-restore.yml` pipeline manually and specify if you would like to update assignments during restore by selecting the UpdateAssignments parameter in the pipeline.
+   - The pipeline will restore the files you've placed in `prod-restore` and afterwards remove them from the `prod-restore` folder and the repository.

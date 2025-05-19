@@ -2,8 +2,10 @@
 
 This project is based on https://github.com/almenscorner/IntuneCD (which automates the process of backing up, documenting, and restoring Microsoft Intune configurations. It also documents the changes made by admins since last backup in separate commits based on the Intune Audit logs) and based on the pipeline configuration of https://github.com/aaronparker/intune-backup-template.
 
-The purpose of this project is to provide a ready-to-use implementation for Azure DevOps with Self Hosted Windows Agents. It contains the pipelines and instructions for configuring the required dependencies.
-
+#### TLDR
+The purpose of this project is to provide a ready-to-use implementation for Azure DevOps with Self Hosted Windows Agents.
+- It contains the pipelines and instructions for configuring the required dependencies for using IntuneCD on Self Hosted Windows Azure DevOps Agents.
+- It contains a conversion of the generated documentation to make it compatible for use in an Azure DevOps code Wiki.
 
 ## Table of Contents
 
@@ -18,18 +20,13 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ---
 
 ## Overview
-This project provides tools to:
-- Backup Intune configurations into the `prod-backup` folder.
-- Generate markdown documentation from the backup and store it in the `prod-documentation` folder.
-- Restore configurations from the `prod-restore` folder.
-
 #### Key Files and Folders
 
 - **`prod-backup\`**: Stores the Intune configuration backup.
 - **`prod-documentation\`**: Contains generated markdown documentation.
 - **`prod-restore\`**: Used for restoring configurations.
-- **`pipelines\intune-backup.yml`**: Creates backup of Intune configurations in `prod-restore\`, generates markdown documentation in `prod-documentation\`, stores changes made by admins since last backup in separate commits based upon Intune audit logs.
-- **`pipelines\intune-restore.yml`**: Restores configurations from the `prod-restore` folder, removes restored files after successful execution. This pipeline contains a parameter to Update Assignments for the restored files (default = false).
+- **`pipelines\intune-backup.yml`**: Creates backup of Intune configurations in `prod-restore\`, generates markdown documentation in `prod-documentation\` converted for use with Azure DevOps code Wiki, stores changes made in Intune by admins since last backup in separate commits based upon Intune audit logs.
+- **`pipelines\intune-restore.yml`**: Restores configurations from the `prod-restore` folder, removes restored files after successful execution. This pipeline contains a parameter to Update Assignments for the restored files (default = `false`).
 - **`Install-Python.ps1`**: Installs Python on Windows Self Hosted Azure DevOps Agent.
 
 ## Setup
@@ -39,7 +36,7 @@ This project provides tools to:
 
 1. **Install Dependencies**:
    - Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
-   - Make sure that you install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "C:\Agent\\_work\\_tool"
+   - Make sure that you install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
 
 2. **Entra ID App Registration permissions**
    - Create an Enterprise App registration in Entra ID
@@ -69,7 +66,7 @@ This project provides tools to:
    - Policy.ReadWrite.SecurityDefaults
    - Group.ReadWrite.All
 
-   Make sure to perform all necessary security reviews within your organizations before deploying in production environments
+   ***Make sure to perform all necessary security reviews within your organizations before deploying in production environments***
 
 3. **Configure Environment**:
    - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
@@ -93,8 +90,36 @@ Run the `intune-backup.yml` pipeline in Azure DevOps to back up configurations t
 The `intune-backup.yml` pipeline automatically generates markdown documentation from the backup. It creates documentation files in the `prod-documentation` folder.
 
 #### Restoring Configurations
+Follow these steps carefully to ensure a smooth restoration process:
 
-Follow the steps in [Restore-Instructions.md](prod-restore/Restore-Instructions.md) to restore configurations. Running the `intune-restore.yml` pipeline from Azure DevOps restores the selected files to Intune.
+1. **Create a New Branch**
+    - Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
+
+2. **Locate the File to Restore**
+    - Use the **Timeline** feature in VSCode to find the historic version of the file in `prod-backup` that contains the settings you want to restore.
+
+3. **Place the File in `prod-restore`**
+    - Copy the file to the corresponding `prod-restore` subfolder. Ensure it is placed in the same location as it was saved in `prod-backup`.
+
+4. **Verify File Placement**
+    - Double-check that the file in `prod-restore` is in the exact same location as it was in `prod-backup`.
+    - For some items (e.g., proactive remediations), you may need to restore multiple files (e.g., a file in `script data` and another in the directory above).
+
+5. **Verify File Contents**
+    - Confirm that the file in `prod-restore` contains the changes you want restored.
+
+6. **Commit and Sync Changes**
+    - Commit your changes to the branch you created.
+    - Sync your branch and open a pull request to merge it with `main`.
+    - In the pull request description, explain what you are restoring and why.
+    - In the pull request description, specify if you would like to restore assignments as well (default = `false`).
+
+7. **Review and Approval**
+    - During review make sure that all the files located in `prod-restore` contain the settings and assignments that you would like to restore (assignments are only restored when you enable the UpdateAssignments parameter when running the `intune-restore.yml` pipeline).
+
+8. **Run Restore Pipeline**
+   - Run the `intune-restore.yml` pipeline manually and specify if you would like to update assignments during restore by selecting the UpdateAssignments parameter in the pipeline.
+   - The pipeline will restore the files you've placed in `prod-restore` and afterwards remove them from the `prod-restore` folder and the repository.
 
 ## Contributing
 
