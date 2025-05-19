@@ -66,6 +66,8 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
    - Policy.ReadWrite.SecurityDefaults
    - Group.ReadWrite.All
 
+After adding the permissions, don't forget to provide Admin consent for them.
+
    ***Make sure to perform all necessary security reviews within your organizations before deploying in production environments***
 
 3. **Configure Environment**:
