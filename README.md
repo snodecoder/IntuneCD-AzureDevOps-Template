@@ -80,7 +80,10 @@ After adding the permissions, don't forget to provide Admin consent for them.
    - TENANT_ID = "`[TenantID]`"
    - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
    - IntuneCDVersion = "==2.4.1b5" (Which IntuneCD version to use)
+- Add the secret for the created App Registration as a secret to the Variable Group, or more secure: add it to a keyvault. If you choose keyvault, uncomment the KeyVault section in both `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml`.
+   - CLIENT_SECRET = "`[ClientSecret]`" 
 - Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created), replace `##INSERT_YOUR_AGENT_POOL_NAME##` with the name of the pool that contains your Azure DevOps Agents.
+- *If you choose different names for the variables stored in the Variable Group and KeyVault, be sure to update the names on the right side of the env: section in the pipeline files. Leave the left side unchanged, otherwise IntuneCD breaks.*
 - Commit changes.
 4. **Set Up Pipelines**:
 - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
