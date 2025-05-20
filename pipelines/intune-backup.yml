@@ -9,7 +9,7 @@ schedules:
     always: true
     
 pool:
-  - name: ##INSERT_YOUR_AGENT_POOL_NAME##
+  name: ##INSERT_YOUR_AGENT_POOL_NAME##
   
 variables:
   - group: ##INSERT_YOUR_VARIABLE_GROUP_NAME##
