@@ -19,14 +19,6 @@ jobs:
       fetchDepth: 1
       persistCredentials: true
 
-    # Uncomment the following lines if you need to retrieve secrets from Azure Key Vault
-    # - task: AzureKeyVault@2
-    #   name: retrieve_secret
-    #   inputs:
-    #     azureSubscription: $(serviceconnection)
-    #     keyVaultName: $(keyvault)
-    #     secretsFilter: '*'
-    #     RunAsPreJob: true
     - task: PowerShell@2
       displayName: Get Changes
       name: get_changes
@@ -63,6 +55,15 @@ jobs:
       fetchDepth: 1
       persistCredentials: true
 
+    # Uncomment the following lines if you need to retrieve secrets from Azure Key Vault
+    # - task: AzureKeyVault@2
+    #   name: retrieve_secret
+    #   inputs:
+    #     azureSubscription: $(serviceconnection)
+    #     keyVaultName: $(keyvault)
+    #     secretsFilter: '*'
+    #     RunAsPreJob: true
+
     # Set git global settings
     - task: PowerShell@2
       displayName: Configure Git
@@ -73,6 +74,7 @@ jobs:
           git config --global user.email $(USER_EMAIL)
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
+        pwsh: true
 
     # Comment out this task when using Python system wide installation
     - task: UsePythonVersion@0
@@ -97,6 +99,7 @@ jobs:
           deactivate
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
+        pwsh: true
 
     # Restore the latest configuration, using the current directory
     - task: PowerShell@2

@@ -44,6 +44,7 @@ jobs:
           git config --global user.email $(USER_EMAIL)
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
+        pwsh: true
 
     # Comment out this task when using Python system wide installation
     # Set up Python environment
@@ -70,6 +71,7 @@ jobs:
           deactivate
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
+        pwsh: true
 
     # Backup the latest configuration, using the current directory
     - task: PowerShell@2
