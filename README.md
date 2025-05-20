@@ -6,6 +6,7 @@ This project is based on https://github.com/almenscorner/IntuneCD (which automat
 The purpose of this project is to provide a ready-to-use implementation for Azure DevOps with Self Hosted Windows Agents.
 - It contains the pipelines and instructions for configuring the required dependencies for using IntuneCD on Self Hosted Windows Azure DevOps Agents.
 - It contains a conversion of the generated documentation to make it compatible for use in an Azure DevOps code Wiki.
+- *Make sure to perform all necessary security reviews within your organizations before deploying in production environments*
 
 ## Table of Contents
 
@@ -66,9 +67,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   - Policy.ReadWrite.SecurityDefaults
   - Group.ReadWrite.All
 
-After adding the permissions, don't forget to provide Admin consent for them.
-
-   ***Make sure to perform all necessary security reviews within your organizations before deploying in production environments***
+*After adding the permissions, don't forget to provide Admin consent for them.* 
 
 3. **Configure Environment**:
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
