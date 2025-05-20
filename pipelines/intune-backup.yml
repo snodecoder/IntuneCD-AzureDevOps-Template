@@ -40,8 +40,8 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          git config --global user.name $(USER_NAME)
-          git config --global user.email $(USER_EMAIL)
+          git config --global user.name $env:USER_NAME
+          git config --global user.email $env:USER_EMAIL
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
@@ -280,8 +280,8 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
-          git config --global user.name $(USER_NAME)
-          git config --global user.email $(USER_EMAIL)
+          git config --global user.name $env:USER_NAME
+          git config --global user.email $env:USER_EMAIL
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
