@@ -45,6 +45,9 @@ jobs:
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
+      env:
+        USER_NAME: $(USER_NAME)
+        USER_EMAIL: $(USER_EMAIL)
 
     # Comment out this task when using Python system wide installation
     # Set up Python environment
@@ -72,6 +75,8 @@ jobs:
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
+      env:
+        IntuneCDVersion: $(IntuneCDVersion)
 
     # Backup the latest configuration, using the current directory
     - task: PowerShell@2
@@ -280,6 +285,9 @@ jobs:
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
+      env:
+        USER_NAME: $(USER_NAME)
+        USER_EMAIL: $(USER_EMAIL)
 
     - task: PowerShell@2
       displayName: Pull origin
