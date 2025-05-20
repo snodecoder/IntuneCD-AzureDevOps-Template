@@ -13,9 +13,17 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
     exit 1
 }
 
+Write-Host "Uninstalling Python $pythonVersion. This may take a while" -ForegroundColor Green
+
+# Uninstall Python from agent tools directory
 $uninstallPath = "$agentToolsDirectory\Python\$pythonVersion\x64\python-$pythonVersion-amd64.exe"
 if (Test-Path $uninstallPath) {
     Start-Process -FilePath $uninstallPath -ArgumentList "/uninstall /quiet" -NoNewWindow -Wait
     Remove-Item -Path "$agentToolsDirectory\Python\$pythonVersion\x64" -Recurse -Force
     Remove-Item -Path "$agentToolsDirectory\Python\$pythonVersion\" -Recurse -Force
+    Write-Host "Python $pythonVersion uninstalled successfully from $agentToolsDirectory." -ForegroundColor Green
 }
+
+Write-Host "Please manually uninstall Python from system-wide installation via Control Panel." -ForegroundColor Orange
+
+Read-Host "Press any key to exit..."

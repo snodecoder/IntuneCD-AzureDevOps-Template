@@ -19,6 +19,14 @@ jobs:
       fetchDepth: 1
       persistCredentials: true
 
+    # Uncomment the following lines if you need to retrieve secrets from Azure Key Vault
+    # - task: AzureKeyVault@2
+    #   name: retrieve_secret
+    #   inputs:
+    #     azureSubscription: $(serviceconnection)
+    #     keyVaultName: $(keyvault)
+    #     secretsFilter: '*'
+    #     RunAsPreJob: true
     - task: PowerShell@2
       displayName: Get Changes
       name: get_changes
@@ -66,6 +74,7 @@ jobs:
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
 
+    # Comment out this task when using Python system wide installation
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.x'

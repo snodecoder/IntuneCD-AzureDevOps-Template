@@ -7,10 +7,10 @@ schedules:
       include:
       - main
     always: true
-    
+
 pool:
   name: ##INSERT_YOUR_AGENT_POOL_NAME##
-  
+
 variables:
   - group: ##INSERT_YOUR_VARIABLE_GROUP_NAME##
 
@@ -25,6 +25,15 @@ jobs:
       fetchDepth: 1
       persistCredentials: true
 
+    # Uncomment the following lines if you need to retrieve secrets from Azure Key Vault
+    # - task: AzureKeyVault@2
+    #   name: retrieve_secret
+    #   inputs:
+    #     azureSubscription: $(serviceconnection)
+    #     keyVaultName: $(keyvault)
+    #     secretsFilter: '*'
+    #     RunAsPreJob: true
+
     # Set git global settings
     - task: PowerShell@2
       displayName: Configure Git
@@ -36,6 +45,7 @@ jobs:
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
 
+    # Comment out this task when using Python system wide installation
     # Set up Python environment
     - task: UsePythonVersion@0
       displayName: Set up Python environment

@@ -37,14 +37,17 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 
 1. **Install Dependencies**:
 - Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
-- Make sure that you install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
+  - You can either install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
+  `.\install-Python.ps1 -pythonVersion "3.13.2" -agentToolsDirectory "C:\Agent\_work\_tool"`
+  - Or you can install Python globally in Program Files (for example because you have multiple Azure DevOps Agents running) by adding the -SystemWide flag
+  `.\install-Python.ps1 -pythonVersion "3.13.2" -installSystemWide`
 
 2. **Entra ID App Registration permissions**
 - Create an Enterprise App registration in Entra ID
 - After creating the App registration -> browse to API permissions -> Click Add Permission -> Click the Microsoft Graph -> Application permissions.
 
   Select each of the following permissions:
-  
+
   To access Intune data:
   - DeviceManagementApps.ReadWrite.All
   - DeviceManagementConfiguration.ReadWrite.All
@@ -55,7 +58,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   - Policy.Read.All
   - Policy.ReadWrite.ConditionalAccess
   - Application.Read.All
-  
+
   To access Entra data:
   - Domain.ReadWrite.All
   - Policy.ReadAll
@@ -67,7 +70,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   - Policy.ReadWrite.SecurityDefaults
   - Group.ReadWrite.All
 
-*After adding the permissions, don't forget to provide Admin consent for them.* 
+*After adding the permissions, don't forget to provide Admin consent for them.*
 
 3. **Configure Environment**:
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
@@ -80,7 +83,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
    - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
    - IntuneCDVersion = "==2.4.1b5" (Which IntuneCD version to use)
 - Add the secret for the created App Registration as a secret to the Variable Group, or more secure: add it to a keyvault. If you choose keyvault, uncomment the KeyVault section in both `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml`.
-   - CLIENT_SECRET = "`[ClientSecret]`" 
+   - CLIENT_SECRET = "`[ClientSecret]`"
 - Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created), replace `##INSERT_YOUR_AGENT_POOL_NAME##` with the name of the pool that contains your Azure DevOps Agents.
 - *If you choose different names for the variables stored in the Variable Group and KeyVault, be sure to update the names on the right side of the env: section in the pipeline files. Leave the left side unchanged, otherwise IntuneCD breaks.*
 - Commit changes.
