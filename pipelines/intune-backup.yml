@@ -18,6 +18,8 @@ jobs:
   - job: backup_document
     displayName: Backup configuration and generate markdown
     continueOnError: false
+    strategy:
+      parallel: 1
     steps:
     - checkout: self
       fetchDepth: 1
