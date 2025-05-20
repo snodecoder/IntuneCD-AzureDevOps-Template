@@ -33,6 +33,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ## Setup Dependencies and Environment
 0. **Requirements:**
 - Windows OS (Server or Client)
+- Powershell 7.x (*Powershell 5 can also be used, but you need to change `pwsh: true` to `pwsh: false` in the pipeline files for that.*)
 - Installed and configured Self Hosted Azure DevOps Agent. *(Instructions not included here, see [Microsoft Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/windows-agent?view=azure-devops&tabs=IP-V4))*
 
 1. **Install Dependencies**:
