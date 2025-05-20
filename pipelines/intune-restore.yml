@@ -5,16 +5,18 @@ parameters:
     type: boolean
     default: false
 
+pool:
+  - name: ##INSERT_YOUR_AGENT_POOL_NAME##
+
 variables:
   - group: ##INSERT_YOUR_VARIABLE_GROUP_NAME##
 
 jobs:
   - job: check_for_files_to_restore
     displayName: Check for files to restore
-    pool:
-      name: 'lab'
     steps:
     - checkout: self
+      fetchDepth: 1
       persistCredentials: true
 
     - task: PowerShell@2
@@ -45,11 +47,10 @@ jobs:
     displayName: Restore configuration
     dependsOn: check_for_files_to_restore
     condition: and(succeeded(), eq(dependencies.check_for_files_to_restore.outputs['get_changes.filesToRestore'], 'true'))
-    pool:
-      name: 'lab'
     continueOnError: false
     steps:
     - checkout: self
+      fetchDepth: 1
       persistCredentials: true
 
     # Set git global settings
