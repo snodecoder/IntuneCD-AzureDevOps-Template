@@ -70,13 +70,13 @@ jobs:
           python -m ensurepip --default-pip
           python -m pip install --upgrade pip
           python -m pip uninstall -y intunecd
-          python -m pip install intunecd$(IntuneCDVersion)
+          python -m pip install intunecd$($env:IntuneCD_Version)
           deactivate
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
       env:
-        IntuneCDVersion: $(IntuneCDVersion)
+        IntuneCD_Version: $(IntuneCD_Version)
 
     # Backup the latest configuration, using the current directory
     - task: PowerShell@2
