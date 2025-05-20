@@ -48,6 +48,8 @@ jobs:
     dependsOn: check_for_files_to_restore
     condition: and(succeeded(), eq(dependencies.check_for_files_to_restore.outputs['get_changes.filesToRestore'], 'true'))
     continueOnError: false
+    strategy:
+      parallel: 1
     steps:
     - checkout: self
       fetchDepth: 1
