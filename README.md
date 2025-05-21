@@ -142,7 +142,7 @@ Assign the Following Permissions:
 - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
 - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
 - Select the Repository you've created, and select the folder `prod-documentation` and click save.
-- After running the `intune-backup.yml' from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
+- After running the `intune-backup.yml` from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
 
 ## Usage
 
