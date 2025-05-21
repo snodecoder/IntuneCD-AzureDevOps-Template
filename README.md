@@ -96,6 +96,9 @@ To change the default in Azure DevOps:
 - Change the default branch name from `master` to `main`.
 
 4. **Configure Environment**:
+- On the Windows Server or Client (but also on you local machine if you want to edit the repository from there), change Git config to allow long filepaths. This fixes potential issues with too long paths.
+Open a Powershell window as Administrator (Powershell 7 or 5), and execute the following:
+`git config --system core.longpaths true`
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
 - Update `.vscode\settings.json` as needed.
 - Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
