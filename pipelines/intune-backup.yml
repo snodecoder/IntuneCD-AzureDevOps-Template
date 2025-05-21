@@ -119,7 +119,7 @@ jobs:
           $var = git diff --name-only --staged "$(Build.SourcesDirectory)\prod-backup"
           Write-Host "##vso[task.setVariable variable=CHANGE_DETECTED;isOutput=true;]$var"
           git commit -m "Intune config backup $DATEF"
-          git push origin HEAD:main
+          git push origin HEAD:refs/heads/main
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'continue'
         pwsh: true
@@ -259,7 +259,7 @@ jobs:
           $DATEF = Get-Date -Format "yyyy.MM.dd"
           git add --all
           git commit -m "Intune config as-built $DATEF"
-          git push origin HEAD:main
+          git push origin HEAD:refs/heads/main
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'continue'
         pwsh: true

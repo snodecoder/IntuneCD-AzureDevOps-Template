@@ -157,7 +157,7 @@ jobs:
           $DATEF = Get-Date -Format "yyyy.MM.dd"
           git add --all
           git commit -m "Intune cleared restored files from repo $DATEF"
-          git push origin HEAD:main
+          git push origin HEAD:refs/heads/main
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'continue'
         pwsh: true

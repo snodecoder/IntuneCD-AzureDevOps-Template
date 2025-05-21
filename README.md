@@ -73,6 +73,19 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 
 *After adding the permissions, don't forget to provide Admin consent for them.*
 
+If you do not want / cannot add a particular permission then you need to add exclusions in the backup pipeline `pipelines\intune-backup.yml`. For example to exclude Conditional Access:
+  For Intune data add the folowing permissions:
+  - DeviceManagementApps.ReadWrite.All
+  - DeviceManagementConfiguration.ReadWrite.All
+  - DeviceManagementServiceConfig.ReadWrite.All
+  - DeviceManagementManagedDevices.ReadWrite.All
+  - DeviceManagementRBAC.ReadWrite.All
+  - Group.Read.All
+  - Policy.Read.All
+  - Application.Read.All
+
+  In `pipelines\intune-backup.yml` add ConditionalAccess to the --exclude parameter (parameters are case sensitive and need to be seperated by a space.)
+
 3. **Configure Environment**:
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
 - Update `.vscode\settings.json` as needed.
@@ -92,7 +105,29 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - Commit changes.
 4. **Set Up Pipelines**:
 - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
-5. **Publish Code Wiki**
+
+5. **Granting Permissions to Azure DevOps Pipeline Identity**
+   To allow your Azure DevOps pipeline to commit and push changes to the repository, follow these steps to assign the necessary permissions:
+
+   - Go to your **Azure DevOps project**.
+   - Navigate to **Project settings** > **Repositories**.
+   - Select the repository your pipeline is working with.
+   - Click on **Security**.
+
+   Next locate the Pipeline Identity. Search for one of the following identities:
+   - `Project Collection Build Service (<your project name>)`
+   - or `Build Service (<your project name>)`
+
+   Assign the Following Permissions:
+
+| Permission       | Status     | Notes                                 |
+|------------------|------------|----------------------------------------|
+| **Contribute**   | ✅ Allow   | Required to commit and push changes    |
+| **Create branch**| ✅ Allow   | Optional, needed if pipeline creates branches |
+| **Create tag**   | ✅ Allow   | Required for tagging commits           |
+| **Read**         | ✅ Allow   | Required to read the repository        |
+
+6. **Publish Code Wiki**
 - In Azure DevOps go to Overview > Wiki.
 - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
 - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
