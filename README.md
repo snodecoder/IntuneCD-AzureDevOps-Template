@@ -71,9 +71,9 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   - Policy.ReadWrite.SecurityDefaults
   - Group.ReadWrite.All
 
-*After adding the permissions, don't forget to provide Admin consent for them.*
+  *After adding the permissions, don't forget to provide Admin consent for them.*
 
-If you do not want / cannot add a particular permission then you need to add exclusions in the backup pipeline `pipelines\intune-backup.yml`. For example to exclude Conditional Access:
+  If you do not want / cannot add a particular permission then you need to add exclusions in the backup pipeline `pipelines\intune-backup.yml`. For example to exclude Conditional Access:
   For Intune data add the folowing permissions:
   - DeviceManagementApps.ReadWrite.All
   - DeviceManagementConfiguration.ReadWrite.All
