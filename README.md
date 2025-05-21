@@ -8,10 +8,20 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - It contains a conversion of the generated documentation to make it compatible for use in an Azure DevOps code Wiki.
 - *Make sure to perform all necessary security reviews within your organizations before deploying in production environments*
 
+---
 ## Table of Contents
-
 - [Overview](#overview)
+  - [Key Files and Folders](#key-files-and-folders)
 - [Setup Dependencies and Environment](#setup-dependencies-and-environment)
+  - [Requirements](#requirements)
+  - [Install Dependencies](#install-dependencies)
+  - [Entra ID App Registration Permissions](#entra-id-app-registration-permissions)
+  - [Change Default Branch Name](#change-default-branch-name)
+  - [Configure Environment](#configure-environment)
+  - [Set Up Pipelines](#set-up-pipelines)
+  - [Granting Permissions to Azure DevOps Pipeline Identity](#granting-permissions-to-azure-devops-pipeline-identity)
+  - [Publish Code Wiki](#publish-code-wiki)
+  - [Configuring Branch Policies](#configuring-branch-policies)
 - [Usage](#usage)
   - [Backing Up Intune Configurations](#backing-up-intune-configurations)
   - [Restoring Configurations](#restoring-configurations)
@@ -21,7 +31,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 ---
 
 ## Overview
-### Key Files and Folders
+##### Key Files and Folders
 
 - **`prod-backup\`**: Stores the Intune configuration backup.
 - **`prod-documentation\`**: Contains generated markdown documentation.
@@ -31,19 +41,19 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 - **`Install-Python.ps1`**: Installs Python on Windows Self Hosted Azure DevOps Agent.
 
 ## Setup Dependencies and Environment
-0. **Requirements:**
+##### Requirements
 - Windows OS (Server or Client)
 - Powershell 7.x (*Powershell 5 can also be used, but you need to change `pwsh: true` to `pwsh: false` in the pipeline files for that.*)
 - Installed and configured Self Hosted Azure DevOps Agent. *(Instructions not included here, see [Microsoft Documentation](https://learn.microsoft.com/en-us/azure/devops/pipelines/agents/windows-agent?view=azure-devops&tabs=IP-V4))*
 
-1. **Install Dependencies**:
+##### Install Dependencies
 - Install Python on Self Hosted Windows Azure DevOps Agent (see `Install-Python.ps1`).
   - You can either install Python in the Work\Tool folder of the Azure DevOps Agent. Default is: "`C:\Agent\_work\_tool`"
   `.\install-Python.ps1 -pythonVersion "3.13.2" -agentToolsDirectory "C:\Agent\_work\_tool"`
   - Or you can install Python globally in Program Files (for example because you have multiple Azure DevOps Agents running) by adding the -SystemWide flag
   `.\install-Python.ps1 -pythonVersion "3.13.2" -installSystemWide`
 
-2. **Entra ID App Registration permissions**
+##### Entra ID App Registration permissions
 - Create an Enterprise App registration in Entra ID
 - After creating the App registration -> browse to API permissions -> Click Add Permission -> Click the Microsoft Graph -> Application permissions.
 
@@ -86,7 +96,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
 
   In `pipelines\intune-backup.yml` add ConditionalAccess to the --exclude parameter (parameters are case sensitive and need to be seperated by a space.)
 
-3. **Change Default branch name**
+##### Change Default branch name
 Azure DevOps uses `master` as default branch name for new repositories. The pipelines in this project use `main` as default.
 To change the default in Azure DevOps:
 - Go to your **Azure DevOps project**.
@@ -95,7 +105,7 @@ To change the default in Azure DevOps:
 - Toggle **Default branch name for new repositories** to **On**
 - Change the default branch name from `master` to `main`.
 
-4. **Configure Environment**:
+##### Configure Environment
 - On the Windows Server or Client (but also on you local machine if you want to edit the repository from there), change Git config to allow long filepaths. This fixes potential issues with too long paths.
 Open a Powershell window as Administrator (Powershell 7 or 5), and execute the following:
 `git config --system core.longpaths true`
@@ -115,10 +125,11 @@ Open a Powershell window as Administrator (Powershell 7 or 5), and execute the f
 - Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created), replace `##INSERT_YOUR_AGENT_POOL_NAME##` with the name of the pool that contains your Azure DevOps Agents.
 - *If you choose different names for the variables stored in the Variable Group and KeyVault, be sure to update the names on the right side of the env: section in the pipeline files. Leave the left side unchanged, otherwise IntuneCD breaks.*
 - Commit changes.
-5. **Set Up Pipelines**:
+
+##### Set Up Pipelines
 - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
 
-6. **Granting Permissions to Azure DevOps Pipeline Identity**
+##### Granting Permissions to Azure DevOps Pipeline Identity
 To allow your Azure DevOps pipeline to commit and push changes to the repository, follow these steps to assign the necessary permissions:
 
 - Go to your **Azure DevOps project**.
@@ -139,15 +150,14 @@ Assign the Following Permissions:
 | **Create tag**   | ✅ Allow   | Required for tagging commits           |
 | **Read**         | ✅ Allow   | Required to read the repository        |
 
-
-7. **Publish Code Wiki**
+##### Publish Code Wiki
 - In Azure DevOps go to Overview > Wiki.
 - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
 - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
 - Select the Repository you've created, and select the folder `prod-documentation` and click save.
 - After running the `intune-backup.yml` from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
 
-8. **Configuring Branch Policies**
+##### Configuring Branch Policies
 *Optional but recommended, mainly to make the restore process more controllable.*
 During normal use, the only reason for a user to make changes manually to the repository would be to copy a backed up policy file to it's corresponding location in `prod-restore` for restoring it (see below for restore instructions). Because restoring the wrong policy can do harm, it makes sense to review these changes before they are applied to the `main` branch (and can be restored by running the `intune-restore.yml` pipeline).
 
@@ -164,15 +174,15 @@ During normal use, the only reason for a user to make changes manually to the re
 
 ## Usage
 
-### Backing Up Intune Configurations
+##### Backing Up Intune Configurations
 Run the `intune-backup.yml` pipeline in Azure DevOps to back up configurations to the `prod-backup` folder.
 The `intune-backup.yml` pipeline automatically generates markdown documentation from the backup. It creates documentation files in the `prod-documentation` folder.
 
-### Restoring Configurations
+##### Restoring Configurations
 Follow these steps carefully to ensure a smooth restore process:
 
 1. **Create a New Branch**
-- Start by creating a new branch from the `main` branch. This ensures your changes are isolated.
+- Start by creating a new branch from the `main` branch. This ensures your changes are isolated. Use a meaningful naming convention for the branch. For example: `restore/M23002333` (reference to a ticket) or `restore/name-of-policy`.
 
 2. **Locate the File to Restore**
 - Use the **Timeline** feature in VSCode to find the historic version of the file in `prod-backup` that contains the settings you want to restore.
