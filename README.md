@@ -86,7 +86,16 @@ If you do not want / cannot add a particular permission then you need to add exc
 
   In `pipelines\intune-backup.yml` add ConditionalAccess to the --exclude parameter (parameters are case sensitive and need to be seperated by a space.)
 
-3. **Configure Environment**:
+3. **Change Default branch name**
+Azure DevOps uses `master` as default branch name for new repositories. The pipelines in this project use `main` as default.
+To change the default in Azure DevOps:
+- Go to your **Azure DevOps project**.
+- Navigate to **Project settings** > **Repositories**.
+- Go to **Settings**
+- Toggle **Default branch name for new repositories** to **On**
+- Change the default branch name from `master` to `main`.
+
+4. **Configure Environment**:
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
 - Update `.vscode\settings.json` as needed.
 - Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
@@ -103,10 +112,10 @@ If you do not want / cannot add a particular permission then you need to add exc
 - Update the files `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml` replace `##INSERT_YOUR_VARIABLE_GROUP_NAME##` with the name of your variable group (that you've just created), replace `##INSERT_YOUR_AGENT_POOL_NAME##` with the name of the pool that contains your Azure DevOps Agents.
 - *If you choose different names for the variables stored in the Variable Group and KeyVault, be sure to update the names on the right side of the env: section in the pipeline files. Leave the left side unchanged, otherwise IntuneCD breaks.*
 - Commit changes.
-4. **Set Up Pipelines**:
+5. **Set Up Pipelines**:
 - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
 
-5. **Granting Permissions to Azure DevOps Pipeline Identity**
+6. **Granting Permissions to Azure DevOps Pipeline Identity**
    To allow your Azure DevOps pipeline to commit and push changes to the repository, follow these steps to assign the necessary permissions:
 
    - Go to your **Azure DevOps project**.
@@ -127,14 +136,6 @@ If you do not want / cannot add a particular permission then you need to add exc
 | **Create tag**   | ✅ Allow   | Required for tagging commits           |
 | **Read**         | ✅ Allow   | Required to read the repository        |
 
-6. **Change Default branch name**
-Azure DevOps uses `master` as default branch name for new repositories. The pipelines in this project use `main` as default.
-To change the default in Azure DevOps:
-- Go to your **Azure DevOps project**.
-- Navigate to **Project settings** > **Repositories**.
-- Go to **Settings**
-- Toggle **Default branch name for new repositories** to **On**
-- Change the default branch name from `master` to `main`.
 
 7. **Publish Code Wiki**
 - In Azure DevOps go to Overview > Wiki.
