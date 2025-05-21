@@ -147,6 +147,21 @@ Assign the Following Permissions:
 - Select the Repository you've created, and select the folder `prod-documentation` and click save.
 - After running the `intune-backup.yml` from Azure DevOps, the generated (and converted) documentation is shown here in the published code wiki.
 
+8. **Configuring Branch Policies**
+*Optional but recommended, mainly to make the restore process more controllable.*
+During normal use, the only reason for a user to make changes manually to the repository would be to copy a backed up policy file to it's corresponding location in `prod-restore` for restoring it (see below for restore instructions). Because restoring the wrong policy can do harm, it makes sense to review these changes before they are applied to the `main` branch (and can be restored by running the `intune-restore.yml` pipeline).
+
+    ##### Configure in Azure DevOps UI
+
+    - Go to **Project Settings > Repositories > [Your Repo] > Branches**
+    - Find the `main` branch, click **... > Branch Policies**
+    - Configure:
+      - Require a minimum number of reviewers (e.g., 1 or 2)
+      - Require linked work items
+      - Require comments to be resolved
+      - Limit merge types (squash only, *this results in a single commit being added to the `main` branch*)
+      - Optional: enable auto-reviewers
+
 ## Usage
 
 ### Backing Up Intune Configurations
