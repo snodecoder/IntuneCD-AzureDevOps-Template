@@ -116,18 +116,18 @@ To change the default in Azure DevOps:
 - Configure the `intune-backup.yml` and `intune-restore.yml` pipelines in Azure DevOps.
 
 6. **Granting Permissions to Azure DevOps Pipeline Identity**
-   To allow your Azure DevOps pipeline to commit and push changes to the repository, follow these steps to assign the necessary permissions:
+To allow your Azure DevOps pipeline to commit and push changes to the repository, follow these steps to assign the necessary permissions:
 
-   - Go to your **Azure DevOps project**.
-   - Navigate to **Project settings** > **Repositories**.
-   - Select the repository your pipeline is working with.
-   - Click on **Security**.
+- Go to your **Azure DevOps project**.
+- Navigate to **Project settings** > **Repositories**.
+- Select the repository your pipeline is working with.
+- Click on **Security**.
 
-   Next locate the Pipeline Identity. Search for one of the following identities:
-   - `Project Collection Build Service (<your project name>)`
-   - or `Build Service (<your project name>)`
+Next locate the Pipeline Identity. Search for one of the following identities:
+- `Project Collection Build Service (<your project name>)`
+- or `Build Service (<your project name>)`
 
-   Assign the Following Permissions:
+Assign the Following Permissions:
 
 | Permission       | Status     | Notes                                 |
 |------------------|------------|----------------------------------------|
