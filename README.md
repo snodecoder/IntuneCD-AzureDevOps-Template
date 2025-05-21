@@ -127,7 +127,16 @@ If you do not want / cannot add a particular permission then you need to add exc
 | **Create tag**   | ✅ Allow   | Required for tagging commits           |
 | **Read**         | ✅ Allow   | Required to read the repository        |
 
-6. **Publish Code Wiki**
+6. **Change Default branch name**
+Azure DevOps uses `master` as default branch name for new repositories. The pipelines in this project use `main` as default.
+To change the default in Azure DevOps:
+- Go to your **Azure DevOps project**.
+- Navigate to **Project settings** > **Repositories**.
+- Go to **Settings**
+- Toggle **Default branch name for new repositories** to **On**
+- Change the default branch name from `master` to `main`.
+
+7. **Publish Code Wiki**
 - In Azure DevOps go to Overview > Wiki.
 - If no Wiki is present you'll first have to create a project Wiki page. To do this simply fill in a title for the page and click save (for example `Wiki`).
 - Click on the Wiki name you've just created to expand the Wiki menu, click on Publish Code Wiki.
