@@ -161,91 +161,98 @@ jobs:
           $sourcePath = "$(Build.SourcesDirectory)\prod-backup"
           $destinationPath = "$(Build.SourcesDirectory)\prod-documentation"
 
-          # Check if the destination path exists, if not create it
+          # Create destination directory if it doesn't exist
           if (-not (Test-Path $destinationPath)) {
               New-Item -Path $destinationPath -ItemType Directory -Force | Out-Null
           }
 
-          # Initialize a mapping hashtable to store folder mappings
+          # Initialize folder mapping
           $folderMapping = @{}
+          $updatedFiles = @()
 
-          # Get all folders recursively from the source path
+          # Map source folders to destination folders
           Get-ChildItem -Path $sourcePath -Directory -Recurse | Where-Object {
               $_.FullName -notlike "*\__archive__*"
           } | ForEach-Object {
               $relativePath = $_.FullName.Substring($sourcePath.Length).TrimStart("\")
-              $newFolderPath = ($relativePath -replace " ", "_") # Replace spaces in the folder names with underscores
+              $newFolderPath = ($relativePath -replace " ", "_")
               $destinationFolderPath = Join-Path $destinationPath $newFolderPath
 
-              # Handle special case for "docs" folders
               if ($_.Name -eq "docs") {
-                  # Map the "docs" folder to one level higher in the destination
                   $parentFolder = Split-Path $destinationFolderPath -Parent
                   $folderMapping[$_.FullName] = $parentFolder
               } else {
-                  # Map the folder normally
                   $folderMapping[$_.FullName] = $destinationFolderPath
-
-                  # Create the corresponding folder structure in the destination path
                   New-Item -Path $destinationFolderPath -ItemType Directory -Force | Out-Null
               }
           }
 
-          # Retrieve all .md files from docs folders under prod-backup
+          # Copy and rename .md files
           Get-ChildItem -Path $sourcePath -Recurse -Filter "*.md" | Where-Object {
               $_.FullName -like "*\docs\*"
           } | ForEach-Object {
-              # Get the source file path
               $sourceFilePath = $_.FullName
-
-              # Find the corresponding destination folder using $folderMapping
               $docsFolderPath = Split-Path -Parent -Path $sourceFilePath
 
               if ($folderMapping.ContainsKey($docsFolderPath)) {
                   $destinationFolderPath = $folderMapping[$docsFolderPath]
-
-                  # Replace spaces in the file name with underscores
                   $newFileName = ($_.Name -replace " ", "_")
                   $destinationFilePath = Join-Path $destinationFolderPath $newFileName
 
-                  Copy-Item -LiteralPath "$sourceFilePath" -Destination $destinationFilePath -Force
-                  Write-Verbose "Copied: $sourceFilePath -> $destinationFolderPath"
+                  $null = Copy-Item -LiteralPath $sourceFilePath -Destination $destinationFilePath -Force
+                  $updatedFiles += $destinationFilePath
+                  $null = Remove-Item -LiteralPath $sourceFilePath -Force
+                  Write-Verbose "Copied and removed: $sourceFilePath -> $destinationFilePath."
               } else {
-                  Write-Warning "No mapping found for: $docsFolderPath"
+                  Write-Warning "No mapping found for: $docsFolderPath."
               }
           }
-          Write-Host "Finished copying .md files from docs folders to prod-documentation."
 
-          # Get all folders under prod-documentation that contain .md files
+          Write-Host "Finished copying and removing original .md files."
+
+          # Clean up outdated .md files in destination
           Get-ChildItem -Path $destinationPath -Directory -Recurse | ForEach-Object {
+              Get-ChildItem -Path $_.FullName -Filter "*.md" -File | ForEach-Object {
+                  if ($updatedFiles -notcontains $_.FullName) {
+                      $null = Remove-Item -LiteralPath $_.FullName -Force
+                      Write-Verbose "Removed outdated file: $($_.FullName)."
+                  }
+              }
+          }
+          Write-Host "Finished cleanup of outdated & orphaned .md files in prod-documentation."
 
+          # Create .md files named after the folder
+          Get-ChildItem -Path $destinationPath -Directory -Recurse | ForEach-Object {
               $mdFiles = Get-ChildItem -Path $_.FullName -Filter "*.md" -File
               if ($mdFiles) {
-
                   $folderName = $_.Name
                   $parentPath = Split-Path -Parent $_.FullName
                   $newMdFilePath = Join-Path $parentPath "$folderName.md"
 
-                  # Write [[TOSP]] as content to the new .md file
-                  Set-Content -Path $newMdFilePath -Value "[[_TOSP_]]"
-                  Write-Host "Created: $newMdFilePath with content [[_TOSP_]]"
+                  $null = Set-Content -Path $newMdFilePath -Value "[[_TOSP_]]"
+                  Write-Verbose "Created: $newMdFilePath with content [[_TOSP_]]."
               }
           }
+          Write-Host "Finished creating TOSP .md files in prod-documentation."
 
-          # Remove all .md files from prod-backup
-          Get-ChildItem -Path $sourcePath -Recurse -Filter "*.md" -File | ForEach-Object {
-              Remove-Item -LiteralPath $_.FullName -Force
-              Write-Verbose "Removed file: $($_.FullName)"
+          # Warn if any .md files still exist in docs folders under prod-backup
+          Get-ChildItem -Path $sourcePath -Recurse -File -Filter "*.md" | ForEach-Object {
+              if ($_.FullName -like "*\docs\*") {
+                  Write-Warning "Unprocessed .md file still present before folder removal: $($_.FullName)."
+              }
+              $null = Remove-Item -LiteralPath $_.FullName -Force
+              Write-Verbose "Removed .md file: $($_.FullName)."
           }
 
           # Remove all docs folders from prod-backup
           Get-ChildItem -Path $sourcePath -Recurse -Directory | Where-Object {
               $_.Name -eq "docs"
           } | ForEach-Object {
-              Remove-Item -LiteralPath $_.FullName -Recurse -Force
-              Write-Verbose "Removed folder: $($_.FullName)"
+              $null = Remove-Item -LiteralPath $_.FullName -Recurse -Force
+              Write-Verbose "Removed folder: $($_.FullName)."
           }
-          Write-Host "Finished removing docs folders and .md files from prod-backup."
+
+          Write-Host "Finished cleanup of .md files and docs folders from prod-backup."
         workingDirectory: '$(Build.SourcesDirectory)'
         errorActionPreference: 'stop'
         pwsh: true
