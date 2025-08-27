@@ -113,8 +113,8 @@ Open a Powershell window as Administrator (Powershell 7 or 5), and execute the f
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
 - Update `.vscode\settings.json` as needed.
 - Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
-   - USER_NAME = "IntuneCD"
-   - USER_EMAIL = "IntuneCD@`[yourdomain.com]`"
+   - USER_NAME = "IntuneCD" (This can be any user name, this is used for GIT credentials.)
+   - USER_EMAIL = "IntuneCD@`[yourdomain.com]`" (This can be any email, this is used for GIT credentials.)
    - TENANT_NAME = "`[tenant.yourdomain.com]`"
    - TENANT_ID = "`[TenantID]`"
    - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
