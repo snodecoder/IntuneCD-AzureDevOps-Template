@@ -173,6 +173,21 @@ During normal use, the only reason for a user to make changes manually to the re
       - Limit merge types (squash only, *this results in a single commit being added to the `main` branch*)
       - Optional: enable auto-reviewers
 
+<img width="1255" height="864" alt="image" src="https://github.com/user-attachments/assets/80e07ea5-7a11-4e3f-9453-8213c28fa0ac" />
+
+Next go to the Security tab and search for one of the following identities:
+- `Project Collection Build Service (<your project name>)`
+- or `Build Service (<your project name>)`
+
+Assign the Following Permissions:
+
+| Permission       | Status     | Notes                                 |
+|------------------|------------|----------------------------------------|
+| **Bypass policies when pushing**   | ✅ Allow   | Required to commit and push changes    |
+| **Contribute**| ✅ Allow   | Required to commit and push changes |
+<img width="1629" height="467" alt="image" src="https://github.com/user-attachments/assets/9867cc1e-93f8-43b0-ab78-9f2399e6abce" />
+
+
 ## Usage
 
 ##### Backing Up Intune Configurations
