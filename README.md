@@ -63,6 +63,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   To access Intune data:
   - DeviceManagementApps.ReadWrite.All
   - DeviceManagementConfiguration.ReadWrite.All
+  - DeviceManagementScripts.ReadWrite.All
   - DeviceManagementServiceConfig.ReadWrite.All
   - DeviceManagementManagedDevices.ReadWrite.All
   - DeviceManagementRBAC.ReadWrite.All
@@ -88,6 +89,7 @@ The purpose of this project is to provide a ready-to-use implementation for Azur
   For Intune data add the folowing permissions:
   - DeviceManagementApps.ReadWrite.All
   - DeviceManagementConfiguration.ReadWrite.All
+  - DeviceManagementScripts.ReadWrite.All
   - DeviceManagementServiceConfig.ReadWrite.All
   - DeviceManagementManagedDevices.ReadWrite.All
   - DeviceManagementRBAC.ReadWrite.All
@@ -112,13 +114,13 @@ Open a Powershell window as Administrator (Powershell 7 or 5), and execute the f
 `git config --system core.longpaths true`
 - Create a new Azure DevOps repository, and copy all files and folders from this repository (excluded the .git folder) to your newly created repository.
 - Update `.vscode\settings.json` as needed.
-- Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables:
+- Make sure that you create a Variable Group in Azure DevOps under Library which contains the following variables (do not include the quotes):
    - USER_NAME = "IntuneCD" (This can be any user name, this is used for GIT credentials.)
    - USER_EMAIL = "IntuneCD@`[yourdomain.com]`" (This can be any email, this is used for GIT credentials.)
    - TENANT_NAME = "`[tenant.yourdomain.com]`"
    - TENANT_ID = "`[TenantID]`"
    - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
-   - IntuneCDVersion = "==2.4.1b5" (Which IntuneCD version to use)
+   - IntuneCDVersion = "==2.4.1" *(Which IntuneCD version to use, see [IntuneCD Releases](https://github.com/almenscorner/IntuneCD/releases))*
    - serviceconnection = "`[serviceconnection]`" (Optional, needed for retrieving KeyVault Secrets)
    - keyvault = "`[keyvault]`" (Optional, needed for retrieving KeyVault Secrets)
 - Add the secret for the created App Registration as a secret to the Variable Group, or more secure: add it to a keyvault. If you choose keyvault, uncomment the KeyVault section in both `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml`.
