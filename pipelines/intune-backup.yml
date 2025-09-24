@@ -263,6 +263,7 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
+          git pull origin main
           $DATEF = Get-Date -Format "yyyy.MM.dd"
           git add --all
           git commit -m "Intune config as-built $DATEF"
