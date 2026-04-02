@@ -22,6 +22,7 @@ jobs:
       parallel: 1
     steps:
     - checkout: self
+      clean: true
       fetchDepth: 1
       persistCredentials: true
 
@@ -65,6 +66,8 @@ jobs:
       inputs:
         targetType: 'inline'
         script: |
+          $env:Path = [System.Environment]::GetEnvironmentVariable("Path", [System.EnvironmentVariableTarget]::Machine)
+          
           python -m venv "$(Build.SourcesDirectory)\.venv"
           & "$(Build.SourcesDirectory)\.venv\Scripts\Activate.ps1"
           python -m ensurepip --default-pip
@@ -95,6 +98,7 @@ jobs:
               --path="$(Build.SourcesDirectory)\prod-backup" `
               --audit `
               --append-id `
+              --enrich-documentation `
               --exclude entraApplications entraAuthenticationFlowsPolicy entraAuthenticationMethods entraAuthorizationPolicy entraB2BPolicy entraDeviceRegistrationPolicy entraExternalIdentitiesPolicy entraGroupSettings entraRoamingSettings entraSecurityDefaults entraSSPR entraUserSettings entraDomains
           deactivate
         workingDirectory: '$(Build.SourcesDirectory)'
@@ -140,7 +144,8 @@ jobs:
               --tenantname=$env:TENANT_NAME `
               --intro="$INTRO" `
               --split-per-config `
-              --decode
+              --decode `
+              --enrich-documentation
           }
           else {
             Write-Host "No configuration backup change detected in the last commit, documentation will not be recreated."
