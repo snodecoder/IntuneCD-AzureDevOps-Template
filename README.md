@@ -120,7 +120,7 @@ Open a Powershell window as Administrator (Powershell 7 or 5), and execute the f
    - TENANT_NAME = "`[tenant.yourdomain.com]`"
    - TENANT_ID = "`[TenantID]`"
    - CLIENT_ID = "`[ClientID]`" (Store the Application ID here for the App Registration that you've just created)
-   - IntuneCDVersion = "==2.4.1" *(Which IntuneCD version to use, see [IntuneCD Releases](https://github.com/almenscorner/IntuneCD/releases))*
+   - IntuneCDVersion = "==2.5.0" *(Which IntuneCD version to use, see [IntuneCD Releases](https://github.com/almenscorner/IntuneCD/releases))*
    - serviceconnection = "`[serviceconnection]`" (Optional, needed for retrieving KeyVault Secrets)
    - keyvault = "`[keyvault]`" (Optional, needed for retrieving KeyVault Secrets)
 - Add the secret for the created App Registration as a secret to the Variable Group, or more secure: add it to a keyvault. If you choose keyvault, uncomment the KeyVault section in both `pipelines\intune-backup.yml` and `pipelines\intune-restore.yml`.
